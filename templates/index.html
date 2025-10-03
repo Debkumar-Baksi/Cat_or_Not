@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cat Classifier</title>
+    <style>
+      /* Basic reset */
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; background: linear-gradient(180deg,#f6f8fb 0%, #ffffff 100%); color:#111; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px}
+
+      .card{width:100%; max-width:760px; background:#fff; border-radius:14px; box-shadow:0 8px 30px rgba(28,41,61,0.08); padding:28px;}
+      header{display:flex; align-items:center; gap:16px; margin-bottom:18px}
+      .logo{width:56px;height:56px; border-radius:10px; background:linear-gradient(135deg,#4f46e5,#06b6d4); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:20px}
+      h1{font-size:20px; letter-spacing:-0.2px}
+      p.lead{color:#4b5563; margin-top:6px; font-size:13px}
+
+      form{display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:center; margin-top:14px}
+      .file-input{display:flex; align-items:center; gap:12px}
+      .file-input input[type=file]{display:none}
+      .btn{background:#4f46e5; color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600}
+      .btn:active{transform:translateY(1px)}
+      .choose{border:1px dashed #e6e9ef; padding:10px 14px; border-radius:10px; display:inline-block; cursor:pointer}
+
+      .result{margin-top:18px; display:flex; gap:18px; align-items:flex-start}
+      .preview{width:200px; height:200px; border-radius:10px; overflow:hidden; background:#f3f4f6; display:flex; align-items:center; justify-content:center; border:1px solid #eef2f7}
+      .preview img{width:100%; height:100%; object-fit:cover}
+
+      .meta{flex:1}
+      .meta .status{font-size:18px; font-weight:700}
+      .meta .prob{margin-top:8px; color:#374151}
+      .info{margin-top:12px; font-size:13px; color:#6b7280}
+
+      footer{margin-top:18px; display:flex; justify-content:space-between; align-items:center; gap:12px}
+      .small{font-size:12px; color:#9ca3af}
+
+      /* Responsive */
+      @media (max-width:640px){
+        form{grid-template-columns:1fr}
+        .result{flex-direction:column}
+        .preview{width:100%; height:220px}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <header>
+        <div class="logo">CC</div>
+        <div>
+          <h1>Cat Classifier</h1>
+          <p class="lead">Upload an image and the model will tell you whether it's a cat.</p>
+        </div>
+      </header>
+
+      <form method="POST" enctype="multipart/form-data">
+        <label class="choose" for="file">Choose image</label>
+        <input id="file" type="file" name="file" accept="image/*" onchange="handleFile(this)" required>
+
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="btn" type="submit">Check</button>
+        </div>
+      </form>
+
+      {% if prediction or filename %}
+      <div class="result">
+        <div class="preview">
+          {% if filename %}
+            <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="uploaded">
+          {% else %}
+            <span>No preview</span>
+          {% endif %}
+        </div>
+
+        <div class="meta">
+          <div class="status">Prediction: <span style="color:#0f172a">{{ prediction }}</span></div>
+          <!-- {% if probability %}
+            <div class="prob">Model confidence: <strong>{{ probability }}</strong></div>
+          {% endif %} -->
+
+          <div class="info">Filename: {{ filename or '—' }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <footer>
+        <div class="small">Tip: make sure the image is similar to training images (clear, centered).</div>
+        <div class="small">Model: local</div>
+      </footer>
+    </div>
+
+    <script>
+      // wire the choose label to file input for nicer UX
+      document.querySelector('.choose').addEventListener('click', function(){ document.getElementById('file').click(); });
+      function handleFile(inp){
+        const label = document.querySelector('.choose');
+        if(inp.files && inp.files[0]) label.textContent = inp.files[0].name;
+      }
+    </script>
+  </body>
+</html>
